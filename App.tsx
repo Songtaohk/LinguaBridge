@@ -13,12 +13,13 @@ const I18N = {
     auth_desc_vercel: "检测到您正在访问独立站点。由于浏览器安全限制，无法直接在此唤起密钥选择器。",
     auth_btn_connect: "尝试连接我的密钥",
     auth_btn_help: "获取我的 API Key",
-    guide_title: "连接密钥的正确方式",
-    guide_p1_title: "方案 A：使用 AI Studio 预览 (推荐)",
-    guide_p1_content: "在 AI Studio 开发界面的右上角点击「Save」保存，然后点击「Test App」。在弹出的新页面中，您可以使用官方顶部的密钥选择器一键连接。",
-    guide_p2_title: "方案 B：安装浏览器扩展",
-    guide_p2_content: "安装「Google AI Studio Bridge」扩展程序，即可让此 Vercel 站点直接获得唤起密钥选择器的权限。",
-    guide_btn_gotit: "返回重试",
+    guide_title: "如何开启连接权限？",
+    guide_p1_title: "方法 A：安装浏览器插件 (最快)",
+    guide_p1_content: "安装 Google 官方提供的 Bridge 插件，即可让此 Vercel 站点直接安全地连接您的密钥。安装后请刷新此页面。",
+    guide_btn_chrome: "去 Chrome 商店安装",
+    guide_p2_title: "方法 B：使用 AI Studio 预览",
+    guide_p2_content: "在 AI Studio 开发界面的右上角点击「Save」，然后点击「Test App」。新页面会自动获得密钥连接权限。",
+    guide_btn_gotit: "我知道了",
     env_standalone: "独立站点模式",
     env_preview: "AI Studio 托管",
     title: "听懂世界，从一键开始。",
@@ -46,11 +47,12 @@ const I18N = {
     auth_desc_vercel: "Standalone site detected. Browser security prevents opening the key selector directly here.",
     auth_btn_connect: "Try to Connect Key",
     auth_btn_help: "Get My API Key",
-    guide_title: "How to Connect?",
-    guide_p1_title: "Option A: AI Studio Test App (Recommended)",
-    guide_p1_content: "Click 'Save' in your AI Studio project, then click 'Test App'. The native key selector will appear at the top of the new page.",
-    guide_p2_title: "Option B: Install Browser Extension",
-    guide_p2_content: "Install the 'Google AI Studio Bridge' extension to enable direct key connection on standalone sites.",
+    guide_title: "How to Enable Connection?",
+    guide_p1_title: "Method A: Install Extension (Fastest)",
+    guide_p1_content: "Install the official Google Bridge extension to allow this site to connect securely. Refresh after installation.",
+    guide_btn_chrome: "Go to Chrome Web Store",
+    guide_p2_title: "Method B: Use AI Studio Preview",
+    guide_p2_content: "Click 'Save' in AI Studio, then click 'Test App'. The new page will have built-in key support.",
     guide_btn_gotit: "Got it",
     env_standalone: "Standalone Mode",
     env_preview: "AI Studio Managed",
@@ -114,7 +116,6 @@ const App: React.FC = () => {
       }
     } else {
       const envKey = process.env.API_KEY;
-      // In standalone Vercel, if env key is missing, we must show the guide
       setIsKeyMissing(!envKey || envKey === 'undefined' || envKey === '');
     }
   };
@@ -226,16 +227,25 @@ const App: React.FC = () => {
                  </div>
                  
                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <h4 className="font-black text-xs uppercase tracking-widest text-slate-400">{t.guide_p1_title}</h4>
-                      <p className="text-sm font-medium text-slate-600 leading-relaxed">{t.guide_p1_content}</p>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-[10px] font-black">A</div>
+                        <h4 className="font-black text-xs uppercase tracking-widest text-slate-800">{t.guide_p1_title}</h4>
+                      </div>
+                      <p className="text-sm font-medium text-slate-600 leading-relaxed pl-8">{t.guide_p1_content}</p>
+                      <a href="https://chromewebstore.google.com/detail/google-ai-studio-bridge/ojefbgfcidhpbnkgchladnlnibpabnbc" target="_blank" className="ml-8 block text-center py-3 bg-slate-100 hover:bg-indigo-50 text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                        {t.guide_btn_chrome}
+                      </a>
                     </div>
 
                     <div className="h-px bg-slate-100"></div>
 
-                    <div className="space-y-2">
-                      <h4 className="font-black text-xs uppercase tracking-widest text-slate-400">{t.guide_p2_title}</h4>
-                      <p className="text-sm font-medium text-slate-600 leading-relaxed">{t.guide_p2_content}</p>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 bg-slate-100 text-slate-600 rounded-full flex items-center justify-center text-[10px] font-black">B</div>
+                        <h4 className="font-black text-xs uppercase tracking-widest text-slate-800">{t.guide_p2_title}</h4>
+                      </div>
+                      <p className="text-sm font-medium text-slate-600 leading-relaxed pl-8">{t.guide_p2_content}</p>
                     </div>
                  </div>
 
@@ -279,7 +289,7 @@ const App: React.FC = () => {
         <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 overflow-hidden">
           <div className="flex bg-slate-50/50 p-1.5 gap-1.5 border-b border-slate-100">
             {(['file', 'url', 'record'] as const).map((m) => (
-              <button key={m} onClick={() => setMode(m)} className={`flex-1 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${mode === m ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}>
+              <button key={m} onClick={() => setMode(m)} className={`flex-1 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all ${m === mode ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-400 hover:text-slate-600'}`}>
                 {m === 'file' ? t.mode_file : m === 'url' ? t.mode_url : t.mode_record}
               </button>
             ))}
