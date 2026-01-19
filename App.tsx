@@ -10,14 +10,14 @@ const I18N = {
   zh: {
     auth_title: "启用您的 AI 专家",
     auth_desc_studio: "欢迎！为了保护您的额度和隐私，请选择您的 Google API 密钥以开始翻译。",
-    auth_desc_vercel: "检测到您正在访问独立站点。由于浏览器安全限制，无法直接唤起选择器。",
-    auth_btn_connect: "连接我的 API 密钥",
-    auth_btn_help: "没有 Key？去获取一个",
-    guide_title: "如何连接密钥？",
-    guide_p1: "如果您是访客，请通过开发者分享的 ",
-    guide_p1_link: "AI Studio 预览链接",
-    guide_p1_end: " 访问，那里支持一键连接您的私有 Key。",
-    guide_p2: "或者，您可以安装 Chrome 扩展程序以支持在独立站点直接唤起连接功能。",
+    auth_desc_vercel: "检测到您正在访问独立站点。由于浏览器安全限制，无法直接在此唤起密钥选择器。",
+    auth_btn_connect: "尝试连接我的密钥",
+    auth_btn_help: "获取我的 API Key",
+    guide_title: "连接密钥的正确方式",
+    guide_p1_title: "方案 A：使用 AI Studio 预览 (推荐)",
+    guide_p1_content: "在 AI Studio 开发界面的右上角点击「Save」保存，然后点击「Test App」。在弹出的新页面中，您可以使用官方顶部的密钥选择器一键连接。",
+    guide_p2_title: "方案 B：安装浏览器扩展",
+    guide_p2_content: "安装「Google AI Studio Bridge」扩展程序，即可让此 Vercel 站点直接获得唤起密钥选择器的权限。",
     guide_btn_gotit: "返回重试",
     env_standalone: "独立站点模式",
     env_preview: "AI Studio 托管",
@@ -37,19 +37,20 @@ const I18N = {
     result_summary: "内容摘要",
     result_source: "原文转录",
     result_translation: "中文译文",
-    initializing: "正在安全连接..."
+    initializing: "正在安全连接...",
+    auth_switch: "切换密钥"
   },
   en: {
     auth_title: "Enable Your AI Expert",
     auth_desc_studio: "Welcome! To protect your quota and privacy, please select your Google API Key to start.",
-    auth_desc_vercel: "Standalone site detected. Browser security prevents opening the key selector directly.",
-    auth_btn_connect: "Connect My API Key",
-    auth_btn_help: "Need a key? Get one here",
+    auth_desc_vercel: "Standalone site detected. Browser security prevents opening the key selector directly here.",
+    auth_btn_connect: "Try to Connect Key",
+    auth_btn_help: "Get My API Key",
     guide_title: "How to Connect?",
-    guide_p1: "If you are a guest, please use the ",
-    guide_p1_link: "AI Studio Preview Link",
-    guide_p1_end: " shared by the developer for seamless key connection.",
-    guide_p2: "Alternatively, install the Chrome Extension to enable bridge support on standalone sites.",
+    guide_p1_title: "Option A: AI Studio Test App (Recommended)",
+    guide_p1_content: "Click 'Save' in your AI Studio project, then click 'Test App'. The native key selector will appear at the top of the new page.",
+    guide_p2_title: "Option B: Install Browser Extension",
+    guide_p2_content: "Install the 'Google AI Studio Bridge' extension to enable direct key connection on standalone sites.",
     guide_btn_gotit: "Got it",
     env_standalone: "Standalone Mode",
     env_preview: "AI Studio Managed",
@@ -69,7 +70,8 @@ const I18N = {
     result_summary: "Key Insights",
     result_source: "Source",
     result_translation: "Translation",
-    initializing: "Initializing..."
+    initializing: "Initializing...",
+    auth_switch: "Switch Key"
   }
 };
 
@@ -91,7 +93,6 @@ const App: React.FC = () => {
   const [showGuide, setShowGuide] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -113,6 +114,7 @@ const App: React.FC = () => {
       }
     } else {
       const envKey = process.env.API_KEY;
+      // In standalone Vercel, if env key is missing, we must show the guide
       setIsKeyMissing(!envKey || envKey === 'undefined' || envKey === '');
     }
   };
@@ -183,7 +185,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-20 pt-safe">
-      {/* 增强型 BYOK 引导中心 */}
+      {/* 密钥鉴权页 */}
       {isKeyMissing && (
         <div className="fixed inset-0 z-[200] bg-slate-900 flex items-center justify-center p-6 overflow-y-auto">
           <div className="max-w-md w-full space-y-8 animate-in fade-in zoom-in-95 duration-500 py-10">
@@ -217,20 +219,26 @@ const App: React.FC = () => {
                 </div>
               </>
             ) : (
-              <div className="bg-white p-10 rounded-[2.5rem] shadow-2xl space-y-6 text-slate-900 animate-in slide-in-from-bottom-8">
+              <div className="bg-white p-10 rounded-[2.5rem] shadow-2xl space-y-8 text-slate-900 animate-in slide-in-from-bottom-8">
                  <div className="flex justify-between items-start">
                    <h3 className="text-2xl font-black tracking-tight text-indigo-600">{t.guide_title}</h3>
                    <i className="fas fa-circle-question text-slate-200 text-3xl"></i>
                  </div>
-                 <div className="space-y-4 text-sm font-medium text-slate-600 leading-relaxed">
-                   <p>
-                     {t.guide_p1} 
-                     <a href="https://aistudio.google.com/app/prompts/new" target="_blank" className="text-indigo-600 font-bold underline decoration-2 underline-offset-4">{t.guide_p1_link}</a> 
-                     {t.guide_p1_end}
-                   </p>
-                   <div className="h-px bg-slate-100 my-4"></div>
-                   <p>{t.guide_p2}</p>
+                 
+                 <div className="space-y-6">
+                    <div className="space-y-2">
+                      <h4 className="font-black text-xs uppercase tracking-widest text-slate-400">{t.guide_p1_title}</h4>
+                      <p className="text-sm font-medium text-slate-600 leading-relaxed">{t.guide_p1_content}</p>
+                    </div>
+
+                    <div className="h-px bg-slate-100"></div>
+
+                    <div className="space-y-2">
+                      <h4 className="font-black text-xs uppercase tracking-widest text-slate-400">{t.guide_p2_title}</h4>
+                      <p className="text-sm font-medium text-slate-600 leading-relaxed">{t.guide_p2_content}</p>
+                    </div>
                  </div>
+
                  <button onClick={() => setShowGuide(false)} className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black hover:bg-slate-800 transition-all active:scale-95 uppercase tracking-widest text-xs">
                     {t.guide_btn_gotit}
                  </button>
