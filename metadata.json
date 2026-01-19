@@ -1,0 +1,7 @@
+{
+  "name": "LinguaBridge AI",
+  "description": "A professional audio translation tool that converts multilingual audio into natural-sounding Chinese speech using Gemini AI.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

@@ -1,0 +1,18 @@
+
+{
+  "short_name": "LinguaBridge",
+  "name": "LinguaBridge AI Audio Translator",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3814/3814421.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#6366f1",
+  "background_color": "#f8fafc",
+  "description": "Professional AI audio translation and summarization tool powered by Gemini."
+}
