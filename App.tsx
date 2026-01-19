@@ -8,64 +8,68 @@ type InputMode = 'file' | 'url' | 'record';
 
 const I18N = {
   zh: {
-    auth_title: "连接您的 Gemini 密钥",
-    auth_desc_studio: "欢迎！为了保护隐私 and 额度，本应用采用“自备密钥”模式。请选择您自己的 Google API 密钥以继续。",
-    auth_desc_vercel: "检测到您正在访问独立站点。由于浏览器安全限制，请确保您已启用 AI Studio 桥接插件，或使用开发者提供的专用预览链接。",
+    auth_title: "启用您的 AI 专家",
+    auth_desc_studio: "欢迎！为了保护您的额度和隐私，请选择您的 Google API 密钥以开始翻译。",
+    auth_desc_vercel: "检测到您正在访问独立站点。由于浏览器安全限制，无法直接唤起选择器。",
     auth_btn_connect: "连接我的 API 密钥",
-    auth_btn_help: "获取我的 API Key",
-    env_standalone: "独立部署模式",
-    env_preview: "AI Studio 托管模式",
-    status_ready: "准备就绪",
-    initializing: "正在初始化环境...",
-    bridge_error: "无法唤起密钥选择器。请尝试在 AI Studio 预览环境中打开此应用，或联系管理员。",
+    auth_btn_help: "没有 Key？去获取一个",
+    guide_title: "如何连接密钥？",
+    guide_p1: "如果您是访客，请通过开发者分享的 ",
+    guide_p1_link: "AI Studio 预览链接",
+    guide_p1_end: " 访问，那里支持一键连接您的私有 Key。",
+    guide_p2: "或者，您可以安装 Chrome 扩展程序以支持在独立站点直接唤起连接功能。",
+    guide_btn_gotit: "返回重试",
+    env_standalone: "独立站点模式",
+    env_preview: "AI Studio 托管",
     title: "听懂世界，从一键开始。",
     subtitle: "多语种智能译制专家",
     mode_file: "本地上传",
-    mode_url: "解析网页",
-    mode_record: "录制捕捉",
-    url_placeholder: "粘贴链接，翻译为中文...",
+    mode_url: "网页解析",
+    mode_record: "实时录音",
+    url_placeholder: "粘贴链接，开始翻译...",
     status_understanding: "AI 深度理解内容中...",
     status_synthesizing: "正在合成中文配音...",
     status_completed: "译制成功！",
     status_error: "处理中断",
-    btn_retry: "重试",
-    result_listening: "收听 AI 中文配音",
-    result_playing: "正在播报译文...",
+    result_listening: "收听翻译配音",
+    result_playing: "正在播报...",
     result_export: "导出音频",
-    result_summary: "智能摘要",
+    result_summary: "内容摘要",
     result_source: "原文转录",
     result_translation: "中文译文",
-    auth_switch: "更换密钥"
+    initializing: "正在安全连接..."
   },
   en: {
-    auth_title: "Connect Your Gemini Key",
-    auth_desc_studio: "Welcome! This app uses 'Bring Your Own Key' mode. Please select your own API Key to continue.",
-    auth_desc_vercel: "Standalone deployment detected. Please ensure the AI Studio bridge is enabled or use the official preview link.",
+    auth_title: "Enable Your AI Expert",
+    auth_desc_studio: "Welcome! To protect your quota and privacy, please select your Google API Key to start.",
+    auth_desc_vercel: "Standalone site detected. Browser security prevents opening the key selector directly.",
     auth_btn_connect: "Connect My API Key",
-    auth_btn_help: "Get My API Key",
+    auth_btn_help: "Need a key? Get one here",
+    guide_title: "How to Connect?",
+    guide_p1: "If you are a guest, please use the ",
+    guide_p1_link: "AI Studio Preview Link",
+    guide_p1_end: " shared by the developer for seamless key connection.",
+    guide_p2: "Alternatively, install the Chrome Extension to enable bridge support on standalone sites.",
+    guide_btn_gotit: "Got it",
     env_standalone: "Standalone Mode",
-    env_preview: "AI Studio Preview",
-    status_ready: "Ready",
-    initializing: "Initializing...",
-    bridge_error: "Cannot open key selector. Please try opening this app in AI Studio Preview environment.",
-    title: "Understand the World, Instantly.",
-    subtitle: "Multilingual AI Translation Expert",
+    env_preview: "AI Studio Managed",
+    title: "Understand the World.",
+    subtitle: "AI Voice Translation Expert",
     mode_file: "Upload",
     mode_url: "URL",
     mode_record: "Record",
-    url_placeholder: "Paste link here...",
-    status_understanding: "AI Thinking...",
+    url_placeholder: "Paste link to translate...",
+    status_understanding: "AI Analyzing...",
     status_synthesizing: "Synthesizing...",
     status_completed: "Completed!",
     status_error: "Error",
-    btn_retry: "Retry",
-    result_listening: "Listen to AI Voice",
+    result_listening: "Listen to Translation",
     result_playing: "Playing...",
     result_export: "Export",
-    result_summary: "Summary",
+    result_summary: "Key Insights",
     result_source: "Source",
     result_translation: "Translation",
-    auth_switch: "Switch Key"
+    initializing: "Initializing..."
   }
 };
 
@@ -84,6 +88,7 @@ const App: React.FC = () => {
   const [isKeyMissing, setIsKeyMissing] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
   const [isBridgeAvailable, setIsBridgeAvailable] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -92,11 +97,7 @@ const App: React.FC = () => {
   const chunksRef = useRef<Blob[]>([]);
 
   const t = I18N[targetLang];
-  
-  // Define isIdle to fix the compilation error by checking if status is IDLE, COMPLETED, or ERROR.
-  const isIdle = processing.status === AppStatus.IDLE || 
-                 processing.status === AppStatus.COMPLETED || 
-                 processing.status === AppStatus.ERROR;
+  const isIdle = processing.status === AppStatus.IDLE || processing.status === AppStatus.COMPLETED || processing.status === AppStatus.ERROR;
 
   const checkKeyStatus = async () => {
     const bridge = (window as any).aistudio;
@@ -104,12 +105,15 @@ const App: React.FC = () => {
     setIsBridgeAvailable(hasBridge);
 
     if (hasBridge) {
-      const hasKey = await bridge.hasSelectedApiKey();
-      setIsKeyMissing(!hasKey);
+      try {
+        const hasKey = await bridge.hasSelectedApiKey();
+        setIsKeyMissing(!hasKey);
+      } catch (e) {
+        setIsKeyMissing(true);
+      }
     } else {
-      // If no bridge (Vercel), check if process.env.API_KEY is somehow injected
       const envKey = process.env.API_KEY;
-      setIsKeyMissing(!envKey || envKey === 'undefined');
+      setIsKeyMissing(!envKey || envKey === 'undefined' || envKey === '');
     }
   };
 
@@ -119,26 +123,27 @@ const App: React.FC = () => {
 
   const handleConnectKey = async () => {
     if (isBridgeAvailable) {
-      await (window as any).aistudio.openSelectKey();
-      // Optimistically assume success after opening
-      setIsKeyMissing(false);
+      try {
+        await (window as any).aistudio.openSelectKey();
+        setIsKeyMissing(false);
+      } catch (e) {
+        setShowGuide(true);
+      }
     } else {
-      alert(t.bridge_error);
-      window.open('https://aistudio.google.com/app/apikey', '_blank');
+      setShowGuide(true);
     }
   };
 
   const processAudioBlob = async (blob: Blob) => {
     setResult(null);
     setProcessing({ status: AppStatus.UPLOADING, progress: 20, message: t.status_understanding });
-    
     try {
       const translation = await translateAudio(blob, targetLang);
       setProcessing({ status: AppStatus.SYNTHESIZING, progress: 70, message: t.status_synthesizing });
       const pcmData = await synthesizeSpeech(translation.translatedText, targetLang);
       const wavBlob = createWavBlob(pcmData, 24000);
       setResult({ ...translation, targetLang, audioBlob: wavBlob, audioUrl: URL.createObjectURL(wavBlob) });
-      setProcessing({ status: AppStatus.COMPLETED, progress: 100, message: t.status_completed });
+      setProcessing({ status: AppStatus.COMPLETED, progress: 100, message: "" });
     } catch (error: any) {
       if (error.message?.includes("401") || error.message?.toLowerCase().includes("key")) {
         setIsKeyMissing(true);
@@ -160,7 +165,7 @@ const App: React.FC = () => {
         const textResult = await translateAndSynthesizeText(sniff.textContent, targetLang);
         const wavBlob = createWavBlob(textResult.pcmData, 24000);
         setResult({ ...textResult, targetLang, audioBlob: wavBlob, audioUrl: URL.createObjectURL(wavBlob) });
-        setProcessing({ status: AppStatus.COMPLETED, progress: 100, message: t.status_completed });
+        setProcessing({ status: AppStatus.COMPLETED, progress: 100, message: "" });
       }
     } catch (err: any) {
       setProcessing({ status: AppStatus.ERROR, progress: 0, message: t.status_error, error: err.message });
@@ -178,36 +183,59 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-20 pt-safe">
-      {/* 密钥鉴权遮罩 - BYOK 核心逻辑 */}
+      {/* 增强型 BYOK 引导中心 */}
       {isKeyMissing && (
-        <div className="fixed inset-0 z-[200] bg-slate-900 flex items-center justify-center p-6">
-          <div className="max-w-md w-full space-y-8 animate-in fade-in zoom-in-95 duration-500">
-            <div className="text-center space-y-6">
-               <div className="w-20 h-20 audio-gradient rounded-3xl flex items-center justify-center mx-auto shadow-2xl rotate-3">
-                 <i className={`fas ${isBridgeAvailable ? 'fa-bolt-lightning' : 'fa-server'} text-white text-3xl`}></i>
-               </div>
-               <div className="space-y-2">
-                 <h2 className="text-3xl font-black text-white">{t.auth_title}</h2>
-                 <p className="text-slate-400 text-sm leading-relaxed px-4">
-                   {isBridgeAvailable ? t.auth_desc_studio : t.auth_desc_vercel}
-                 </p>
-               </div>
-            </div>
+        <div className="fixed inset-0 z-[200] bg-slate-900 flex items-center justify-center p-6 overflow-y-auto">
+          <div className="max-w-md w-full space-y-8 animate-in fade-in zoom-in-95 duration-500 py-10">
+            {!showGuide ? (
+              <>
+                <div className="text-center space-y-6">
+                   <div className="w-24 h-24 audio-gradient rounded-[2.5rem] flex items-center justify-center mx-auto shadow-2xl rotate-3">
+                     <i className={`fas ${isBridgeAvailable ? 'fa-bolt-lightning' : 'fa-link-slash'} text-white text-4xl`}></i>
+                   </div>
+                   <div className="space-y-3">
+                     <h2 className="text-3xl font-black text-white tracking-tight">{t.auth_title}</h2>
+                     <p className="text-slate-400 text-sm leading-relaxed px-6">
+                       {isBridgeAvailable ? t.auth_desc_studio : t.auth_desc_vercel}
+                     </p>
+                   </div>
+                </div>
 
-            <div className="bg-slate-800 p-6 rounded-3xl space-y-4">
-               <button onClick={handleConnectKey} className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black shadow-xl hover:bg-indigo-500 transition-all active:scale-95 uppercase tracking-wider">
-                  {t.auth_btn_connect}
-               </button>
-               <a href="https://aistudio.google.com/app/apikey" target="_blank" className="block text-center text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-indigo-400 transition-colors">
-                 {t.auth_btn_help}
-               </a>
-            </div>
-            
-            <div className="text-center">
-              <span className="px-3 py-1 bg-slate-800 text-slate-500 rounded-full text-[9px] font-black uppercase tracking-widest">
-                {isBridgeAvailable ? t.env_preview : t.env_standalone}
-              </span>
-            </div>
+                <div className="bg-slate-800/50 p-8 rounded-[2rem] border border-slate-700/50 shadow-2xl space-y-4">
+                   <button onClick={handleConnectKey} className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black shadow-lg hover:bg-indigo-500 transition-all active:scale-95 uppercase tracking-widest flex items-center justify-center gap-3">
+                      <i className="fas fa-plug"></i> {t.auth_btn_connect}
+                   </button>
+                   <a href="https://aistudio.google.com/app/apikey" target="_blank" className="block text-center py-3 text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-indigo-400 transition-colors">
+                     {t.auth_btn_help} <i className="fas fa-external-link-alt ml-1"></i>
+                   </a>
+                </div>
+                
+                <div className="text-center">
+                  <span className="px-4 py-1.5 bg-slate-800/80 text-slate-500 rounded-full text-[9px] font-black uppercase tracking-widest border border-slate-700/50">
+                    {isBridgeAvailable ? t.env_preview : t.env_standalone}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div className="bg-white p-10 rounded-[2.5rem] shadow-2xl space-y-6 text-slate-900 animate-in slide-in-from-bottom-8">
+                 <div className="flex justify-between items-start">
+                   <h3 className="text-2xl font-black tracking-tight text-indigo-600">{t.guide_title}</h3>
+                   <i className="fas fa-circle-question text-slate-200 text-3xl"></i>
+                 </div>
+                 <div className="space-y-4 text-sm font-medium text-slate-600 leading-relaxed">
+                   <p>
+                     {t.guide_p1} 
+                     <a href="https://aistudio.google.com/app/prompts/new" target="_blank" className="text-indigo-600 font-bold underline decoration-2 underline-offset-4">{t.guide_p1_link}</a> 
+                     {t.guide_p1_end}
+                   </p>
+                   <div className="h-px bg-slate-100 my-4"></div>
+                   <p>{t.guide_p2}</p>
+                 </div>
+                 <button onClick={() => setShowGuide(false)} className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black hover:bg-slate-800 transition-all active:scale-95 uppercase tracking-widest text-xs">
+                    {t.guide_btn_gotit}
+                 </button>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -221,11 +249,9 @@ const App: React.FC = () => {
             <span className="font-extrabold text-lg tracking-tight">LinguaBridge</span>
           </div>
           <div className="flex items-center gap-2">
-            {isBridgeAvailable && (
-              <button onClick={handleConnectKey} className="h-9 px-3 bg-slate-100 rounded-xl text-slate-500 hover:text-indigo-600 transition-all text-[10px] font-black uppercase tracking-widest">
-                 <i className="fas fa-key mr-2"></i> {t.auth_switch}
-              </button>
-            )}
+            <button onClick={handleConnectKey} className="h-9 px-3 bg-slate-100 rounded-xl text-slate-500 hover:text-indigo-600 transition-all text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+               <i className="fas fa-key"></i> {t.auth_switch}
+            </button>
             <div className="flex bg-slate-100 p-1 rounded-xl">
                <button onClick={() => setTargetLang('zh')} className={`px-3 py-1.5 rounded-lg text-[10px] font-black transition-all ${targetLang === 'zh' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-400'}`}>ZH</button>
                <button onClick={() => setTargetLang('en')} className={`px-3 py-1.5 rounded-lg text-[10px] font-black transition-all ${targetLang === 'en' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-400'}`}>EN</button>
