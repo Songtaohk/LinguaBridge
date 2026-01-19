@@ -8,25 +8,22 @@ type InputMode = 'file' | 'url' | 'record';
 
 const I18N = {
   zh: {
+    auth_title: "连接您的 Gemini 密钥",
+    auth_desc_studio: "欢迎！为了保护隐私 and 额度，本应用采用“自备密钥”模式。请选择您自己的 Google API 密钥以继续。",
+    auth_desc_vercel: "检测到您正在访问独立站点。由于浏览器安全限制，请确保您已启用 AI Studio 桥接插件，或使用开发者提供的专用预览链接。",
+    auth_btn_connect: "连接我的 API 密钥",
+    auth_btn_help: "获取我的 API Key",
+    env_standalone: "独立部署模式",
+    env_preview: "AI Studio 托管模式",
+    status_ready: "准备就绪",
+    initializing: "正在初始化环境...",
+    bridge_error: "无法唤起密钥选择器。请尝试在 AI Studio 预览环境中打开此应用，或联系管理员。",
     title: "听懂世界，从一键开始。",
     subtitle: "多语种智能译制专家",
-    targetLang: "目标语言",
     mode_file: "本地上传",
     mode_url: "解析网页",
     mode_record: "录制捕捉",
     url_placeholder: "粘贴链接，翻译为中文...",
-    url_btn: "解析并翻译",
-    guide_toggle_on: "收起安装指南",
-    guide_toggle_off: "如何安装“一键翻译”书签",
-    guide_step1: "复制代码",
-    guide_copy: "点击复制代码",
-    guide_copy_success: "复制成功",
-    guide_desc: "在浏览器书签管理器中，添加新书签，名称自定，网址粘贴上方代码。",
-    upload_title: "上传外语音频",
-    upload_desc: "支持 100+ 语种自动识别翻译",
-    record_idle: "点击麦克风捕捉网页声音",
-    record_active: "正在捕获音频",
-    status_ready: "准备就绪",
     status_understanding: "AI 深度理解内容中...",
     status_synthesizing: "正在合成中文配音...",
     status_completed: "译制成功！",
@@ -36,57 +33,38 @@ const I18N = {
     result_playing: "正在播报译文...",
     result_export: "导出音频",
     result_summary: "智能摘要",
-    result_source: "原文转录 (Source)",
-    result_translation: "中文译文 (Translation)",
-    deploy_tip_title: "智能链路就绪",
-    deploy_tip_desc: "粘贴链接即可翻译。建议收藏页面以备不时之需。",
-    initializing: "正在启动 LinguaBridge...",
-    auth_title: "连接您的 Gemini AI",
-    auth_desc: "为了保护您的隐私和额度，本应用采用“自带密钥”模式。请连接您的付费项目 API Key 以解锁全部功能。",
-    auth_btn: "连接我的 API 密钥",
-    auth_billing: "了解如何配置账单",
-    init_error: "程序启动失败，请检查网络或刷新重试。",
-    auth_switch: "切换密钥"
+    result_source: "原文转录",
+    result_translation: "中文译文",
+    auth_switch: "更换密钥"
   },
   en: {
+    auth_title: "Connect Your Gemini Key",
+    auth_desc_studio: "Welcome! This app uses 'Bring Your Own Key' mode. Please select your own API Key to continue.",
+    auth_desc_vercel: "Standalone deployment detected. Please ensure the AI Studio bridge is enabled or use the official preview link.",
+    auth_btn_connect: "Connect My API Key",
+    auth_btn_help: "Get My API Key",
+    env_standalone: "Standalone Mode",
+    env_preview: "AI Studio Preview",
+    status_ready: "Ready",
+    initializing: "Initializing...",
+    bridge_error: "Cannot open key selector. Please try opening this app in AI Studio Preview environment.",
     title: "Understand the World, Instantly.",
     subtitle: "Multilingual AI Translation Expert",
-    targetLang: "Target Language",
-    mode_file: "Local Upload",
-    mode_url: "Web Resolve",
-    mode_record: "Live Capture",
-    url_placeholder: "Paste link to translate...",
-    url_btn: "Translate Now",
-    guide_toggle_on: "Hide Instructions",
-    guide_toggle_off: "Install One-Click Bookmarklet",
-    guide_step1: "Copy Script",
-    guide_copy: "Copy Code",
-    guide_copy_success: "Copied!",
-    guide_desc: "Add a new bookmark in your browser, and paste the code into the URL field.",
-    upload_title: "Upload Audio File",
-    upload_desc: "Auto-detects 100+ languages",
-    record_idle: "Click to capture system sound",
-    record_active: "Capturing Audio",
-    status_ready: "Ready",
-    status_understanding: "AI is analyzing content...",
-    status_synthesizing: "Synthesizing AI voice...",
-    status_completed: "Success!",
-    status_error: "Processing Failed",
+    mode_file: "Upload",
+    mode_url: "URL",
+    mode_record: "Record",
+    url_placeholder: "Paste link here...",
+    status_understanding: "AI Thinking...",
+    status_synthesizing: "Synthesizing...",
+    status_completed: "Completed!",
+    status_error: "Error",
     btn_retry: "Retry",
     result_listening: "Listen to AI Voice",
-    result_playing: "Playing Translation...",
-    result_export: "Export WAV",
-    result_summary: "Key Insights",
-    result_source: "Source Transcript",
+    result_playing: "Playing...",
+    result_export: "Export",
+    result_summary: "Summary",
+    result_source: "Source",
     result_translation: "Translation",
-    deploy_tip_title: "Smart Link Ready",
-    deploy_tip_desc: "Paste any link to begin. Save this page to your favorites.",
-    initializing: "Launching LinguaBridge...",
-    auth_title: "Connect Your Gemini AI",
-    auth_desc: "This app uses the 'Bring Your Own Key' model for your privacy. Please connect an API key from a paid GCP project to continue.",
-    auth_btn: "Connect My API Key",
-    auth_billing: "Learn about billing",
-    init_error: "App failed to start. Please check your network.",
     auth_switch: "Switch Key"
   }
 };
@@ -102,85 +80,55 @@ const App: React.FC = () => {
   });
   const [result, setResult] = useState<TranslationResult | null>(null);
   const [isRecording, setIsRecording] = useState(false);
-  const [recordTime, setRecordTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isKeyMissing, setIsKeyMissing] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
-  const [initError, setInitError] = useState<string | null>(null);
-  const [showMagicTip, setShowMagicTip] = useState(false);
-  const [copySuccess, setCopySuccess] = useState(false);
+  const [isBridgeAvailable, setIsBridgeAvailable] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const activeSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const timerRef = useRef<number | null>(null);
 
   const t = I18N[targetLang];
-  const appUrl = window.location.href.split('?')[0].split('#')[0];
-  const bookmarkletCode = `javascript:(function(){var u='${appUrl}';var t=encodeURIComponent(window.location.href);var w=window.open(u+'?url='+t,'_blank');if(!w||w.closed){alert('Pop-up blocked!');}else{w.focus();}})();`;
+  
+  // Define isIdle to fix the compilation error by checking if status is IDLE, COMPLETED, or ERROR.
+  const isIdle = processing.status === AppStatus.IDLE || 
+                 processing.status === AppStatus.COMPLETED || 
+                 processing.status === AppStatus.ERROR;
 
   const checkKeyStatus = async () => {
-    // In Plan A, we prioritize the user-selected key over any process.env fallback
-    // to ensure the app is shareable safely.
-    if (typeof (window as any).aistudio?.hasSelectedApiKey === 'function') {
-      const hasKey = await (window as any).aistudio.hasSelectedApiKey();
+    const bridge = (window as any).aistudio;
+    const hasBridge = !!(bridge && bridge.hasSelectedApiKey && bridge.openSelectKey);
+    setIsBridgeAvailable(hasBridge);
+
+    if (hasBridge) {
+      const hasKey = await bridge.hasSelectedApiKey();
       setIsKeyMissing(!hasKey);
     } else {
-      // Fallback for non-aistudio environments
-      setIsKeyMissing(!process.env.API_KEY);
+      // If no bridge (Vercel), check if process.env.API_KEY is somehow injected
+      const envKey = process.env.API_KEY;
+      setIsKeyMissing(!envKey || envKey === 'undefined');
     }
   };
 
   useEffect(() => {
-    const msgMap: Record<AppStatus, string> = {
-      [AppStatus.IDLE]: t.status_ready,
-      [AppStatus.UPLOADING]: t.status_understanding,
-      [AppStatus.TRANSCRIBING]: t.status_understanding,
-      [AppStatus.SYNTHESIZING]: t.status_synthesizing,
-      [AppStatus.COMPLETED]: t.status_completed,
-      [AppStatus.ERROR]: t.status_error
-    };
-    setProcessing(p => ({ ...p, message: msgMap[p.status] }));
+    checkKeyStatus().finally(() => setIsInitializing(false));
+  }, []);
 
-    const init = async () => {
-      try {
-        await checkKeyStatus();
-        const params = new URLSearchParams(window.location.search);
-        const externalUrl = params.get('url');
-        if (externalUrl) {
-          setUrlInput(decodeURIComponent(externalUrl));
-          setMode('url');
-        }
-      } catch (e: any) {
-        console.error("Init Error", e);
-        setInitError(e.message);
-      } finally {
-        setIsInitializing(false);
-      }
-    };
-    init();
-  }, [targetLang]);
-
-  const handleSelectKey = async () => {
-    if (typeof (window as any).aistudio?.openSelectKey === 'function') {
+  const handleConnectKey = async () => {
+    if (isBridgeAvailable) {
       await (window as any).aistudio.openSelectKey();
-      // Assume success as per guidelines
+      // Optimistically assume success after opening
       setIsKeyMissing(false);
+    } else {
+      alert(t.bridge_error);
+      window.open('https://aistudio.google.com/app/apikey', '_blank');
     }
-  };
-
-  const stopAudioPlayback = () => {
-    if (activeSourceRef.current) {
-      try { activeSourceRef.current.stop(); } catch (e) {}
-      activeSourceRef.current = null;
-    }
-    setIsPlaying(false);
   };
 
   const processAudioBlob = async (blob: Blob) => {
-    stopAudioPlayback();
     setResult(null);
     setProcessing({ status: AppStatus.UPLOADING, progress: 20, message: t.status_understanding });
     
@@ -189,11 +137,10 @@ const App: React.FC = () => {
       setProcessing({ status: AppStatus.SYNTHESIZING, progress: 70, message: t.status_synthesizing });
       const pcmData = await synthesizeSpeech(translation.translatedText, targetLang);
       const wavBlob = createWavBlob(pcmData, 24000);
-      const audioUrl = URL.createObjectURL(wavBlob);
-      setResult({ ...translation, targetLang, audioBlob: wavBlob, audioUrl });
+      setResult({ ...translation, targetLang, audioBlob: wavBlob, audioUrl: URL.createObjectURL(wavBlob) });
       setProcessing({ status: AppStatus.COMPLETED, progress: 100, message: t.status_completed });
     } catch (error: any) {
-      if (error.message?.includes("not found") || error.message?.includes("404")) {
+      if (error.message?.includes("401") || error.message?.toLowerCase().includes("key")) {
         setIsKeyMissing(true);
       }
       setProcessing({ status: AppStatus.ERROR, progress: 0, message: t.status_error, error: error.message });
@@ -204,19 +151,15 @@ const App: React.FC = () => {
     if (!urlInput) return;
     setResult(null);
     setProcessing({ status: AppStatus.UPLOADING, progress: 10, message: t.status_understanding });
-    
     try {
       const sniff = await resolveAudioLink(urlInput);
       if (sniff.url) {
         const res = await fetch(sniff.url);
-        const blob = await res.blob();
-        processAudioBlob(blob);
+        processAudioBlob(await res.blob());
       } else if (sniff.textContent) {
-        setProcessing({ status: AppStatus.SYNTHESIZING, progress: 50, message: t.status_synthesizing });
         const textResult = await translateAndSynthesizeText(sniff.textContent, targetLang);
         const wavBlob = createWavBlob(textResult.pcmData, 24000);
-        const audioUrl = URL.createObjectURL(wavBlob);
-        setResult({ ...textResult, targetLang, audioBlob: wavBlob, audioUrl });
+        setResult({ ...textResult, targetLang, audioBlob: wavBlob, audioUrl: URL.createObjectURL(wavBlob) });
         setProcessing({ status: AppStatus.COMPLETED, progress: 100, message: t.status_completed });
       }
     } catch (err: any) {
@@ -224,96 +167,46 @@ const App: React.FC = () => {
     }
   };
 
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
-      chunksRef.current = [];
-      mediaRecorderRef.current.ondataavailable = (e) => chunksRef.current.push(e.data);
-      mediaRecorderRef.current.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
-        processAudioBlob(blob);
-        stream.getTracks().forEach(track => track.stop());
-      };
-      mediaRecorderRef.current.start();
-      setIsRecording(true);
-      setRecordTime(0);
-      timerRef.current = window.setInterval(() => setRecordTime(prev => prev + 1), 1000);
-    } catch (err: any) {
-      setProcessing({ status: AppStatus.ERROR, progress: 0, message: t.status_error, error: 'Mic denied.' });
-    }
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-      if (timerRef.current) clearInterval(timerRef.current);
-    }
-  };
-
-  const toggleAudio = async () => {
-    if (isPlaying) { stopAudioPlayback(); return; }
-    if (!result?.audioBlob) return;
-    if (!audioContextRef.current) audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
-    const uint8Data = new Uint8Array(await result.audioBlob.arrayBuffer()).slice(44);
-    const buffer = await decodeAudioData(uint8Data, audioContextRef.current, 24000, 1);
-    const source = audioContextRef.current.createBufferSource();
-    source.buffer = buffer;
-    source.connect(audioContextRef.current.destination);
-    source.onended = () => setIsPlaying(false);
-    activeSourceRef.current = source;
-    source.start();
-    setIsPlaying(true);
-  };
-
-  const isIdle = processing.status === AppStatus.IDLE || processing.status === AppStatus.COMPLETED || processing.status === AppStatus.ERROR;
-
   if (isInitializing) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
         <p className="text-slate-400 font-bold tracking-widest text-xs uppercase">{t.initializing}</p>
-      </div>
-    );
-  }
-
-  if (initError) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-16 h-16 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mb-4 text-2xl">
-          <i className="fas fa-exclamation-triangle"></i>
-        </div>
-        <h2 className="text-lg font-black text-slate-800 mb-2">{t.status_error}</h2>
-        <p className="text-slate-500 text-sm mb-6">{t.init_error}</p>
-        <button onClick={() => window.location.reload()} className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all">
-          {t.btn_retry}
-        </button>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-20 pt-safe">
+      {/* 密钥鉴权遮罩 - BYOK 核心逻辑 */}
       {isKeyMissing && (
-        <div className="fixed inset-0 z-[200] bg-slate-900 flex items-center justify-center p-6 sm:p-0">
-          <div className="max-w-md w-full text-center space-y-10 animate-in fade-in zoom-in-95 duration-500">
-            <div className="w-24 h-24 audio-gradient rounded-[2rem] flex items-center justify-center mx-auto shadow-[0_0_50px_rgba(99,102,241,0.3)] rotate-3 relative">
-               <i className="fas fa-key text-white text-4xl"></i>
+        <div className="fixed inset-0 z-[200] bg-slate-900 flex items-center justify-center p-6">
+          <div className="max-w-md w-full space-y-8 animate-in fade-in zoom-in-95 duration-500">
+            <div className="text-center space-y-6">
+               <div className="w-20 h-20 audio-gradient rounded-3xl flex items-center justify-center mx-auto shadow-2xl rotate-3">
+                 <i className={`fas ${isBridgeAvailable ? 'fa-bolt-lightning' : 'fa-server'} text-white text-3xl`}></i>
+               </div>
+               <div className="space-y-2">
+                 <h2 className="text-3xl font-black text-white">{t.auth_title}</h2>
+                 <p className="text-slate-400 text-sm leading-relaxed px-4">
+                   {isBridgeAvailable ? t.auth_desc_studio : t.auth_desc_vercel}
+                 </p>
+               </div>
             </div>
-            <div className="space-y-4 px-4">
-              <h2 className="text-3xl font-black text-white tracking-tight">{t.auth_title}</h2>
-              <p className="text-slate-400 text-sm font-medium leading-relaxed">{t.auth_desc}</p>
+
+            <div className="bg-slate-800 p-6 rounded-3xl space-y-4">
+               <button onClick={handleConnectKey} className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black shadow-xl hover:bg-indigo-500 transition-all active:scale-95 uppercase tracking-wider">
+                  {t.auth_btn_connect}
+               </button>
+               <a href="https://aistudio.google.com/app/apikey" target="_blank" className="block text-center text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-indigo-400 transition-colors">
+                 {t.auth_btn_help}
+               </a>
             </div>
-            <div className="space-y-4 px-4 w-full">
-              <button onClick={handleSelectKey} className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black shadow-2xl hover:bg-indigo-500 transition-all active:scale-95 text-sm uppercase tracking-wider">
-                  {t.auth_btn}
-              </button>
-              <div className="flex justify-center gap-6">
-                 <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noopener noreferrer" className="text-[11px] font-black text-slate-500 uppercase tracking-widest border-b border-slate-700 pb-0.5 hover:text-indigo-400 hover:border-indigo-400 transition-all">
-                    {t.auth_billing} <i className="fas fa-external-link-alt ml-1"></i>
-                 </a>
-              </div>
+            
+            <div className="text-center">
+              <span className="px-3 py-1 bg-slate-800 text-slate-500 rounded-full text-[9px] font-black uppercase tracking-widest">
+                {isBridgeAvailable ? t.env_preview : t.env_standalone}
+              </span>
             </div>
           </div>
         </div>
@@ -327,13 +220,15 @@ const App: React.FC = () => {
             </div>
             <span className="font-extrabold text-lg tracking-tight">LinguaBridge</span>
           </div>
-          <div className="flex gap-2">
-            <button onClick={handleSelectKey} className="px-4 h-9 bg-slate-100 rounded-xl flex items-center justify-center text-slate-500 hover:text-indigo-600 transition-colors text-[10px] font-black uppercase tracking-widest">
-              <i className="fas fa-sync-alt mr-2"></i> {t.auth_switch}
-            </button>
+          <div className="flex items-center gap-2">
+            {isBridgeAvailable && (
+              <button onClick={handleConnectKey} className="h-9 px-3 bg-slate-100 rounded-xl text-slate-500 hover:text-indigo-600 transition-all text-[10px] font-black uppercase tracking-widest">
+                 <i className="fas fa-key mr-2"></i> {t.auth_switch}
+              </button>
+            )}
             <div className="flex bg-slate-100 p-1 rounded-xl">
-               <button onClick={() => setTargetLang('zh')} className={`px-3 py-1.5 rounded-lg text-[10px] font-black transition-all ${targetLang === 'zh' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-400'}`}>中文</button>
-               <button onClick={() => setTargetLang('en')} className={`px-3 py-1.5 rounded-lg text-[10px] font-black transition-all ${targetLang === 'en' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-400'}`}>English</button>
+               <button onClick={() => setTargetLang('zh')} className={`px-3 py-1.5 rounded-lg text-[10px] font-black transition-all ${targetLang === 'zh' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-400'}`}>ZH</button>
+               <button onClick={() => setTargetLang('en')} className={`px-3 py-1.5 rounded-lg text-[10px] font-black transition-all ${targetLang === 'en' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-400'}`}>EN</button>
             </div>
           </div>
         </div>
@@ -344,11 +239,7 @@ const App: React.FC = () => {
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-white border border-slate-200 text-indigo-500 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm">
              <i className="fas fa-sparkles"></i> {t.subtitle}
           </div>
-          <h1 className="text-4xl sm:text-6xl font-black tracking-tighter leading-tight px-4">
-            {t.title.split(/[，,]/).map((c, i, a) => (
-              <React.Fragment key={i}>{c}{i < a.length - 1 ? (targetLang === 'zh' ? '，' : ',') : ''}{i < a.length - 1 && <br/>}</React.Fragment>
-            ))}
-          </h1>
+          <h1 className="text-4xl sm:text-6xl font-black tracking-tighter leading-tight px-4">{t.title}</h1>
         </div>
 
         <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 overflow-hidden">
@@ -362,48 +253,42 @@ const App: React.FC = () => {
 
           <div className="p-8 sm:p-12">
             {mode === 'url' && (
-              <div className="space-y-6">
-                <div className="relative group">
-                  <input type="url" value={urlInput} onChange={(e) => setUrlInput(e.target.value)} placeholder={t.url_placeholder} className="w-full pl-6 pr-32 py-5 rounded-2xl bg-slate-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white outline-none transition-all text-sm font-bold shadow-inner" />
-                  <button onClick={handleUrlSubmit} className="absolute right-2 top-2 bottom-2 px-6 bg-indigo-600 text-white rounded-xl font-black text-[10px] uppercase hover:bg-slate-900 transition-all shadow-md">{t.url_btn}</button>
-                </div>
-                <button onClick={() => setShowMagicTip(!showMagicTip)} className="w-full py-2 text-[9px] font-black text-slate-400 hover:text-indigo-600 uppercase tracking-widest transition-colors">{showMagicTip ? t.guide_toggle_on : t.guide_toggle_off}</button>
-                {showMagicTip && (
-                  <div className="p-6 bg-slate-900 rounded-3xl space-y-4 shadow-xl animate-in zoom-in-95">
-                    <div className="flex justify-between items-center">
-                       <p className="text-[11px] text-white font-black">{t.guide_step1}</p>
-                       <button onClick={async () => { await navigator.clipboard.writeText(bookmarkletCode); setCopySuccess(true); setTimeout(() => setCopySuccess(false), 2000); }} className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase transition-all ${copySuccess ? 'bg-emerald-500 text-white' : 'bg-white/10 text-white'}`}>{copySuccess ? t.guide_copy_success : t.guide_copy}</button>
-                    </div>
-                    <p className="text-[10px] text-slate-400 leading-relaxed font-medium">{t.guide_desc}</p>
-                  </div>
-                )}
+              <div className="relative group">
+                <input type="url" value={urlInput} onChange={(e) => setUrlInput(e.target.value)} placeholder={t.url_placeholder} className="w-full pl-6 pr-32 py-5 rounded-2xl bg-slate-50 border-2 border-transparent focus:border-indigo-500 focus:bg-white outline-none transition-all text-sm font-bold shadow-inner" />
+                <button onClick={handleUrlSubmit} className="absolute right-2 top-2 bottom-2 px-6 bg-indigo-600 text-white rounded-xl font-black text-[10px] uppercase hover:bg-slate-900 transition-all shadow-md">GO</button>
               </div>
             )}
 
             {mode === 'file' && (
               <div onClick={() => isIdle && fileInputRef.current?.click()} className={`border-2 border-dashed rounded-3xl p-12 text-center transition-all ${isIdle ? 'border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/30 cursor-pointer' : 'opacity-50'}`}>
                 <input type="file" ref={fileInputRef} onChange={(e) => e.target.files?.[0] && processAudioBlob(e.target.files[0])} className="hidden" accept="audio/*" />
-                <div className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4 bg-indigo-50 text-indigo-600"><i className="fas fa-cloud-arrow-up text-2xl"></i></div>
-                <h3 className="text-lg font-black text-slate-800">{t.upload_title}</h3>
-                <p className="mt-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t.upload_desc}</p>
+                <i className="fas fa-cloud-arrow-up text-4xl text-indigo-200 mb-4 block"></i>
+                <h3 className="text-lg font-black text-slate-800">{t.mode_file}</h3>
+                <p className="mt-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Supports MP3, WAV, M4A</p>
               </div>
             )}
 
             {mode === 'record' && (
               <div className="flex flex-col items-center justify-center py-10 rounded-3xl bg-slate-50">
-                {!isRecording ? (
-                  <button onClick={startRecording} className="w-20 h-20 rounded-full bg-white text-rose-500 flex items-center justify-center hover:scale-110 active:scale-95 shadow-xl transition-all"><i className="fas fa-microphone text-2xl"></i></button>
-                ) : (
-                  <button onClick={stopRecording} className="w-20 h-20 rounded-full bg-rose-500 text-white flex items-center justify-center shadow-xl animate-pulse"><i className="fas fa-stop text-2xl"></i></button>
-                )}
-                <p className="mt-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">{isRecording ? `${t.record_active} (${recordTime}s)` : t.record_idle}</p>
+                <button onClick={isRecording ? () => { mediaRecorderRef.current?.stop(); setIsRecording(false); } : async () => {
+                  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                  mediaRecorderRef.current = new MediaRecorder(stream);
+                  chunksRef.current = [];
+                  mediaRecorderRef.current.ondataavailable = (e) => chunksRef.current.push(e.data);
+                  mediaRecorderRef.current.onstop = () => processAudioBlob(new Blob(chunksRef.current, { type: 'audio/webm' }));
+                  mediaRecorderRef.current.start();
+                  setIsRecording(true);
+                }} className={`w-20 h-20 rounded-full flex items-center justify-center shadow-xl transition-all ${isRecording ? 'bg-rose-500 text-white animate-pulse' : 'bg-white text-rose-500'}`}>
+                  <i className={`fas ${isRecording ? 'fa-stop' : 'fa-microphone'} text-2xl`}></i>
+                </button>
+                <p className="mt-6 text-[10px] font-black text-slate-400 uppercase tracking-widest">{isRecording ? 'Recording...' : t.status_ready}</p>
               </div>
             )}
 
             {!isIdle && (
               <div className="mt-8 p-6 bg-indigo-50 rounded-3xl space-y-3">
                 <div className="flex justify-between items-center text-[10px] font-black text-indigo-600 uppercase">
-                  <div className="flex items-center gap-2"><div className="w-3 h-3 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>{processing.message}</div>
+                  <span>{processing.message}</span>
                   <span>{processing.progress}%</span>
                 </div>
                 <div className="h-2 bg-white rounded-full overflow-hidden p-0.5"><div className="h-full bg-indigo-600 rounded-full transition-all duration-700" style={{ width: `${processing.progress}%` }}></div></div>
@@ -412,14 +297,22 @@ const App: React.FC = () => {
 
             {result && (
               <div className="mt-10 space-y-8 animate-in fade-in slide-in-from-bottom-4">
-                <div className="audio-gradient p-8 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl text-white">
+                <div className="audio-gradient p-8 rounded-3xl flex items-center justify-between shadow-xl text-white">
                   <div className="flex items-center gap-5">
-                    <button onClick={toggleAudio} className={`w-16 h-16 rounded-2xl bg-white flex items-center justify-center text-2xl active:scale-90 transition-all ${isPlaying ? 'text-indigo-600' : 'text-slate-900 pl-1'}`}>
+                    <button onClick={() => {
+                      if (isPlaying) { activeSourceRef.current?.stop(); setIsPlaying(false); }
+                      else {
+                        const audio = new Audio(result.audioUrl);
+                        audio.onplay = () => setIsPlaying(true);
+                        audio.onended = () => setIsPlaying(false);
+                        audio.play();
+                      }
+                    }} className={`w-16 h-16 rounded-2xl bg-white flex items-center justify-center text-2xl active:scale-90 transition-all ${isPlaying ? 'text-indigo-600' : 'text-slate-900 pl-1'}`}>
                       {isPlaying ? <i className="fas fa-stop"></i> : <i className="fas fa-play"></i>}
                     </button>
                     <div>
                       <p className="font-black text-lg">{isPlaying ? t.result_playing : t.result_listening}</p>
-                      <p className="text-white/60 text-[9px] font-bold uppercase tracking-widest">Neural AI Voice Engine</p>
+                      <p className="text-white/60 text-[9px] font-bold uppercase tracking-widest">Gemini Neural Voice</p>
                     </div>
                   </div>
                   <a href={result.audioUrl} download="translation.wav" className="px-5 py-3 bg-white/10 rounded-xl text-[10px] font-black border border-white/20 hover:bg-white/20 transition-all flex items-center gap-2">
@@ -427,28 +320,26 @@ const App: React.FC = () => {
                   </a>
                 </div>
 
-                <div className="bg-slate-900 text-white rounded-3xl p-8 shadow-lg">
-                  <div className="flex items-center gap-2 px-2.5 py-1 bg-white/10 rounded-full w-fit mb-4">
-                    <i className="fas fa-lightbulb text-indigo-400 text-[10px]"></i><span className="text-[9px] font-black uppercase tracking-widest">{t.result_summary}</span>
+                <div className="bg-slate-900 text-white rounded-3xl p-8">
+                  <div className="flex items-center gap-2 mb-4">
+                    <i className="fas fa-lightbulb text-indigo-400"></i>
+                    <span className="text-[10px] font-black uppercase tracking-widest">{t.result_summary}</span>
                   </div>
                   <div className="space-y-3">
                     {result.summary.map((p, i) => (
-                      <div key={i} className="flex gap-3 items-start">
-                        <span className="w-4 h-4 rounded bg-indigo-500/30 text-indigo-300 flex items-center justify-center text-[9px] font-black shrink-0">{i + 1}</span>
-                        <p className="text-slate-300 text-xs font-bold leading-relaxed">{p}</p>
-                      </div>
+                      <p key={i} className="text-slate-300 text-xs font-bold leading-relaxed">• {p}</p>
                     ))}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="bg-slate-50 p-6 rounded-3xl">
+                  <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
                     <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{t.result_source}</span>
-                    <p className="text-slate-600 text-xs leading-relaxed font-medium mt-3">{result.originalText}</p>
+                    <p className="text-slate-600 text-xs mt-3 leading-relaxed">{result.originalText}</p>
                   </div>
                   <div className="bg-indigo-50/50 p-6 rounded-3xl border border-indigo-100">
                     <span className="text-[9px] font-black text-indigo-500 uppercase tracking-widest">{t.result_translation}</span>
-                    <p className="text-slate-800 text-sm font-black leading-snug mt-3">{result.translatedText}</p>
+                    <p className="text-slate-800 text-sm font-black mt-3 leading-relaxed">{result.translatedText}</p>
                   </div>
                 </div>
               </div>
