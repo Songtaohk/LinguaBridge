@@ -41,10 +41,12 @@ const I18N = {
     deploy_tip_title: "智能链路就绪",
     deploy_tip_desc: "粘贴链接即可翻译。建议收藏页面以备不时之需。",
     initializing: "正在启动 LinguaBridge...",
-    auth_title: "连接 LinguaBridge AI",
-    auth_desc: "请选择一个已启用账单的付费项目密钥以开启高级 AI 音频处理功能。",
-    auth_btn: "立即连接密钥",
-    auth_billing: "了解账单配置"
+    auth_title: "连接您的 Gemini AI",
+    auth_desc: "为了保护您的隐私和额度，本应用采用“自带密钥”模式。请连接您的付费项目 API Key 以解锁全部功能。",
+    auth_btn: "连接我的 API 密钥",
+    auth_billing: "了解如何配置账单",
+    init_error: "程序启动失败，请检查网络或刷新重试。",
+    auth_switch: "切换密钥"
   },
   en: {
     title: "Understand the World, Instantly.",
@@ -80,10 +82,12 @@ const I18N = {
     deploy_tip_title: "Smart Link Ready",
     deploy_tip_desc: "Paste any link to begin. Save this page to your favorites.",
     initializing: "Launching LinguaBridge...",
-    auth_title: "Connect LinguaBridge AI",
-    auth_desc: "Select an API key from a paid project to enable advanced AI features.",
-    auth_btn: "Connect AI Key",
-    auth_billing: "Learn about billing"
+    auth_title: "Connect Your Gemini AI",
+    auth_desc: "This app uses the 'Bring Your Own Key' model for your privacy. Please connect an API key from a paid GCP project to continue.",
+    auth_btn: "Connect My API Key",
+    auth_billing: "Learn about billing",
+    init_error: "App failed to start. Please check your network.",
+    auth_switch: "Switch Key"
   }
 };
 
@@ -102,6 +106,7 @@ const App: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isKeyMissing, setIsKeyMissing] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [initError, setInitError] = useState<string | null>(null);
   const [showMagicTip, setShowMagicTip] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
 
@@ -116,6 +121,18 @@ const App: React.FC = () => {
   const appUrl = window.location.href.split('?')[0].split('#')[0];
   const bookmarkletCode = `javascript:(function(){var u='${appUrl}';var t=encodeURIComponent(window.location.href);var w=window.open(u+'?url='+t,'_blank');if(!w||w.closed){alert('Pop-up blocked!');}else{w.focus();}})();`;
 
+  const checkKeyStatus = async () => {
+    // In Plan A, we prioritize the user-selected key over any process.env fallback
+    // to ensure the app is shareable safely.
+    if (typeof (window as any).aistudio?.hasSelectedApiKey === 'function') {
+      const hasKey = await (window as any).aistudio.hasSelectedApiKey();
+      setIsKeyMissing(!hasKey);
+    } else {
+      // Fallback for non-aistudio environments
+      setIsKeyMissing(!process.env.API_KEY);
+    }
+  };
+
   useEffect(() => {
     const msgMap: Record<AppStatus, string> = {
       [AppStatus.IDLE]: t.status_ready,
@@ -129,26 +146,16 @@ const App: React.FC = () => {
 
     const init = async () => {
       try {
-        // Optimization: If process.env.API_KEY already exists, we skip the auth screen entirely
-        const envKeyAvailable = !!process.env.API_KEY;
-        const hasSelectedKey = (window as any).aistudio?.hasSelectedApiKey 
-          ? await (window as any).aistudio.hasSelectedApiKey() 
-          : false;
-
-        if (!envKeyAvailable && !hasSelectedKey) {
-          setIsKeyMissing(true);
-        } else {
-          setIsKeyMissing(false);
-        }
-
+        await checkKeyStatus();
         const params = new URLSearchParams(window.location.search);
         const externalUrl = params.get('url');
         if (externalUrl) {
           setUrlInput(decodeURIComponent(externalUrl));
           setMode('url');
         }
-      } catch (e) {
+      } catch (e: any) {
         console.error("Init Error", e);
+        setInitError(e.message);
       } finally {
         setIsInitializing(false);
       }
@@ -157,10 +164,10 @@ const App: React.FC = () => {
   }, [targetLang]);
 
   const handleSelectKey = async () => {
-    // Transition immediately to let user interact with app even while system dialog is open
-    setIsKeyMissing(false); 
     if (typeof (window as any).aistudio?.openSelectKey === 'function') {
       await (window as any).aistudio.openSelectKey();
+      // Assume success as per guidelines
+      setIsKeyMissing(false);
     }
   };
 
@@ -186,8 +193,8 @@ const App: React.FC = () => {
       setResult({ ...translation, targetLang, audioBlob: wavBlob, audioUrl });
       setProcessing({ status: AppStatus.COMPLETED, progress: 100, message: t.status_completed });
     } catch (error: any) {
-      if (error.message?.includes("not found")) {
-        setIsKeyMissing(true); // Re-prompt only if it's a key/project error
+      if (error.message?.includes("not found") || error.message?.includes("404")) {
+        setIsKeyMissing(true);
       }
       setProcessing({ status: AppStatus.ERROR, progress: 0, message: t.status_error, error: error.message });
     }
@@ -271,16 +278,28 @@ const App: React.FC = () => {
     );
   }
 
+  if (initError) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-16 h-16 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mb-4 text-2xl">
+          <i className="fas fa-exclamation-triangle"></i>
+        </div>
+        <h2 className="text-lg font-black text-slate-800 mb-2">{t.status_error}</h2>
+        <p className="text-slate-500 text-sm mb-6">{t.init_error}</p>
+        <button onClick={() => window.location.reload()} className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all">
+          {t.btn_retry}
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-20 pt-safe">
       {isKeyMissing && (
         <div className="fixed inset-0 z-[200] bg-slate-900 flex items-center justify-center p-6 sm:p-0">
           <div className="max-w-md w-full text-center space-y-10 animate-in fade-in zoom-in-95 duration-500">
             <div className="w-24 h-24 audio-gradient rounded-[2rem] flex items-center justify-center mx-auto shadow-[0_0_50px_rgba(99,102,241,0.3)] rotate-3 relative">
-               <i className="fas fa-bolt-lightning text-white text-4xl"></i>
-               <button onClick={() => setIsKeyMissing(false)} className="absolute -top-4 -right-4 w-10 h-10 bg-white/10 rounded-full text-white/50 hover:text-white transition-colors">
-                  <i className="fas fa-times text-xs"></i>
-               </button>
+               <i className="fas fa-key text-white text-4xl"></i>
             </div>
             <div className="space-y-4 px-4">
               <h2 className="text-3xl font-black text-white tracking-tight">{t.auth_title}</h2>
@@ -291,7 +310,6 @@ const App: React.FC = () => {
                   {t.auth_btn}
               </button>
               <div className="flex justify-center gap-6">
-                 <button onClick={() => setIsKeyMissing(false)} className="text-[11px] font-black text-slate-500 uppercase tracking-widest hover:text-white transition-colors">跳过</button>
                  <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noopener noreferrer" className="text-[11px] font-black text-slate-500 uppercase tracking-widest border-b border-slate-700 pb-0.5 hover:text-indigo-400 hover:border-indigo-400 transition-all">
                     {t.auth_billing} <i className="fas fa-external-link-alt ml-1"></i>
                  </a>
@@ -310,8 +328,8 @@ const App: React.FC = () => {
             <span className="font-extrabold text-lg tracking-tight">LinguaBridge</span>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => setIsKeyMissing(true)} className="w-9 h-9 bg-slate-100 rounded-xl flex items-center justify-center text-slate-500 hover:text-indigo-600 transition-colors">
-              <i className="fas fa-key text-xs"></i>
+            <button onClick={handleSelectKey} className="px-4 h-9 bg-slate-100 rounded-xl flex items-center justify-center text-slate-500 hover:text-indigo-600 transition-colors text-[10px] font-black uppercase tracking-widest">
+              <i className="fas fa-sync-alt mr-2"></i> {t.auth_switch}
             </button>
             <div className="flex bg-slate-100 p-1 rounded-xl">
                <button onClick={() => setTargetLang('zh')} className={`px-3 py-1.5 rounded-lg text-[10px] font-black transition-all ${targetLang === 'zh' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-400'}`}>中文</button>

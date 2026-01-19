@@ -5,6 +5,7 @@ import { TargetLanguage } from "../types";
 
 /**
  * Enhanced Link Resolver: Now handles audio sniffing AND text-to-audio fallback.
+ * Uses internal initialization to ensure fresh API key usage.
  */
 export const resolveAudioLink = async (pageUrl: string): Promise<{ url?: string, textContent?: string, sourceName?: string }> => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
