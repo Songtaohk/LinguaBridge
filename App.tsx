@@ -42,9 +42,9 @@ const I18N = {
     deploy_tip_desc: "粘贴链接即可翻译。建议收藏页面以备不时之需。",
     initializing: "正在启动 LinguaBridge...",
     auth_title: "连接 LinguaBridge AI",
-    auth_desc: "本应用使用 Gemini 高级模型。请选择一个已启用账单的付费项目密钥以开启智能译制功能。",
+    auth_desc: "请选择一个已启用账单的付费项目密钥以开启高级 AI 音频处理功能。",
     auth_btn: "立即连接密钥",
-    auth_billing: "了解如何配置付费项目"
+    auth_billing: "了解账单配置"
   },
   en: {
     title: "Understand the World, Instantly.",
@@ -81,9 +81,9 @@ const I18N = {
     deploy_tip_desc: "Paste any link to begin. Save this page to your favorites.",
     initializing: "Launching LinguaBridge...",
     auth_title: "Connect LinguaBridge AI",
-    auth_desc: "This app uses premium Gemini models. Please select an API key from a paid project to enable smart translation features.",
+    auth_desc: "Select an API key from a paid project to enable advanced AI features.",
     auth_btn: "Connect AI Key",
-    auth_billing: "Learn about billing requirements"
+    auth_billing: "Learn about billing"
   }
 };
 
@@ -129,12 +129,16 @@ const App: React.FC = () => {
 
     const init = async () => {
       try {
-        const hasKey = (window as any).aistudio?.hasSelectedApiKey 
+        // Optimization: If process.env.API_KEY already exists, we skip the auth screen entirely
+        const envKeyAvailable = !!process.env.API_KEY;
+        const hasSelectedKey = (window as any).aistudio?.hasSelectedApiKey 
           ? await (window as any).aistudio.hasSelectedApiKey() 
-          : !!process.env.API_KEY;
+          : false;
 
-        if (!hasKey) {
+        if (!envKeyAvailable && !hasSelectedKey) {
           setIsKeyMissing(true);
+        } else {
+          setIsKeyMissing(false);
         }
 
         const params = new URLSearchParams(window.location.search);
@@ -153,10 +157,10 @@ const App: React.FC = () => {
   }, [targetLang]);
 
   const handleSelectKey = async () => {
+    // Transition immediately to let user interact with app even while system dialog is open
+    setIsKeyMissing(false); 
     if (typeof (window as any).aistudio?.openSelectKey === 'function') {
-      // Rule: MUST assume selection was successful and proceed to app immediately.
       await (window as any).aistudio.openSelectKey();
-      setIsKeyMissing(false);
     }
   };
 
@@ -182,9 +186,8 @@ const App: React.FC = () => {
       setResult({ ...translation, targetLang, audioBlob: wavBlob, audioUrl });
       setProcessing({ status: AppStatus.COMPLETED, progress: 100, message: t.status_completed });
     } catch (error: any) {
-      // If error mentions entity not found, re-prompt for key
       if (error.message?.includes("not found")) {
-        setIsKeyMissing(true);
+        setIsKeyMissing(true); // Re-prompt only if it's a key/project error
       }
       setProcessing({ status: AppStatus.ERROR, progress: 0, message: t.status_error, error: error.message });
     }
@@ -273,25 +276,26 @@ const App: React.FC = () => {
       {isKeyMissing && (
         <div className="fixed inset-0 z-[200] bg-slate-900 flex items-center justify-center p-6 sm:p-0">
           <div className="max-w-md w-full text-center space-y-10 animate-in fade-in zoom-in-95 duration-500">
-            <div className="w-24 h-24 audio-gradient rounded-[2rem] flex items-center justify-center mx-auto shadow-[0_0_50px_rgba(99,102,241,0.3)] rotate-3">
+            <div className="w-24 h-24 audio-gradient rounded-[2rem] flex items-center justify-center mx-auto shadow-[0_0_50px_rgba(99,102,241,0.3)] rotate-3 relative">
                <i className="fas fa-bolt-lightning text-white text-4xl"></i>
-            </div>
-            <div className="space-y-4">
-              <h2 className="text-3xl font-black text-white tracking-tight">{t.auth_title}</h2>
-              <p className="text-slate-400 text-sm font-medium leading-relaxed px-4">{t.auth_desc}</p>
+               <button onClick={() => setIsKeyMissing(false)} className="absolute -top-4 -right-4 w-10 h-10 bg-white/10 rounded-full text-white/50 hover:text-white transition-colors">
+                  <i className="fas fa-times text-xs"></i>
+               </button>
             </div>
             <div className="space-y-4 px-4">
+              <h2 className="text-3xl font-black text-white tracking-tight">{t.auth_title}</h2>
+              <p className="text-slate-400 text-sm font-medium leading-relaxed">{t.auth_desc}</p>
+            </div>
+            <div className="space-y-4 px-4 w-full">
               <button onClick={handleSelectKey} className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black shadow-2xl hover:bg-indigo-500 transition-all active:scale-95 text-sm uppercase tracking-wider">
                   {t.auth_btn}
               </button>
-              <a 
-                href="https://ai.google.dev/gemini-api/docs/billing" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-block text-[11px] font-black text-slate-500 uppercase tracking-widest border-b border-slate-700 pb-0.5 hover:text-indigo-400 hover:border-indigo-400 transition-all"
-              >
-                {t.auth_billing} <i className="fas fa-external-link-alt ml-1"></i>
-              </a>
+              <div className="flex justify-center gap-6">
+                 <button onClick={() => setIsKeyMissing(false)} className="text-[11px] font-black text-slate-500 uppercase tracking-widest hover:text-white transition-colors">跳过</button>
+                 <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noopener noreferrer" className="text-[11px] font-black text-slate-500 uppercase tracking-widest border-b border-slate-700 pb-0.5 hover:text-indigo-400 hover:border-indigo-400 transition-all">
+                    {t.auth_billing} <i className="fas fa-external-link-alt ml-1"></i>
+                 </a>
+              </div>
             </div>
           </div>
         </div>
